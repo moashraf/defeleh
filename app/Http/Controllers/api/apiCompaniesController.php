@@ -166,7 +166,7 @@ $companies = company::where('name', 'LIKE', "%$keyword%")->Orwhere('description'
          ]);
         if ($validator->fails())
             return Helpers::returnJsonResponse(false,'Error , Missing inputs  user id ...',null);
-         $my_company=company::where('ownerid',$request->user_id )->first();
+         $my_company=company::where('ownerid',$request->user_id )->get();
         if (!is_null($my_company)) return Helpers::returnJsonResponse(true, 'my company listed successfully ..', $my_company);
         else return Helpers::returnJsonResponse(false, 'no companies existed ..', null);
 

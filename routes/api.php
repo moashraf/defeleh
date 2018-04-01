@@ -18,6 +18,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
+Route::group(['middleware' => 'apiUser' ], function ()
+{
 
 
 // Msg routes
@@ -35,6 +37,7 @@ Route::post('/create-user', 'apiSigninController@apiSignup');
 Route::get('active_my_account/{userid}/{code}', 'apiSigninController@active_my_account');
 Route::get('resending_email/{user_id}', 'apiSigninController@resending_email');
 Route::post('social_login', 'apiSigninController@social_login');
+Route::post('forget_password', 'apiSigninController@forget_password');
 
 
 
@@ -110,3 +113,5 @@ Route::get('/single_product/{single_id}', 'apiproductController@show');
 Route::post('/product', 'apiproductController@store');
 Route::put('/product/{id}/edit', 'apiproductController@update');
 Route::delete('/product/{id}', 'apiproductController@delete');
+
+});
