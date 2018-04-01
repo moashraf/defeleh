@@ -1,11 +1,12 @@
 <?php
- namespace App\Http\Controllers\api;
- use App\Models\company;
+namespace App\Http\Controllers\api;
+
+use App\Models\company;
+use App\Models\CompanyFollow;
 use App\Models\companycategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-
-use App\Http\Requests\CreatecompanyRequest;
+use App\Facades\Helpers;
 use App\Http\Requests\UpdatecompanyRequest;
 use App\Repositories\companyRepository;
 use App\Http\Controllers\AppBaseController;
@@ -24,9 +25,16 @@ class apiCompaniesController extends AppBaseController
         $this->companyRepository = $companyRepo;
     }
 
-   
+    public static function company_search($keyword)
+    {
+$companies = company::where('name', 'LIKE', "%$keyword%")->Orwhere('description', 'LIKE', "%$keyword%")->get();
+        if (  !$companies->isEmpty() ){ return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $companies);}
+        else { return Helpers::returnJsonResponse(false, 'no companies existed ..', null);}
+      
+    }
 
-    public static function fileToUpload($image)
+
+ public static function fileToUpload($image)
     {
 
         $nameDataSheet = "picture" . rand();
@@ -34,68 +42,54 @@ class apiCompaniesController extends AppBaseController
         $image->move(base_path() . '/public/upload/', $imageNameDataSheet);
         return $imageNameDataSheet;
     }
-
+    
+    
+    
     public function cat($cat)
     {
         $companies = company::where('categoryid', '=', $cat)->get();
- 
-       
-    if ( !$companies->isEmpty() ){
-            return response()->json([
-                'status' => true,
-               'message' => 'company  successfully',
-                'data' => $companies
-           ]  ,200,
-           ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE
-);
-        }
-        else{
-            return response()->json([
-                'status' => false,
-                'message' => 'error not  company found '
-            ]);
-      }
+
+        if (!$companies->isEmpty()) return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $companies);
+        else return Helpers::returnJsonResponse(false, 'companies not existed ..', null);
 
     }
- 
-    public function store(CreatecompanyRequest $request)
+
+    public function cat_and_company()
     {
 
-      $validator = Validator::make($request->all(), [
-         'name' => 'required', 
-         'categoryid' => 'required',
-         'ownerid' => 'required',
+        $cat_and_company = companycategory::with('get_company')->get();
 
-        'image' => 'mimes:jpeg,jpg,png,gif|required|max:10000', // max 10000kb
-        'address' => 'required', 'phones' => 'required', 'description' => 'required'
+        if (!$cat_and_company->isEmpty()) return Helpers::returnJsonResponse(true, 'cat and company listed successfully ..', $cat_and_company);
+        else return Helpers::returnJsonResponse(false, 'cat and company  not existed ..', null);
 
-        ]);
+    }
 
-        if ($validator->fails()){
-                $errors = $validator->errors();
+    public function store(Request $request)
+    {
+        $rules = ['name' => 'required', 'categoryid' => 'required', 'ownerid' => 'required', 'image' => 'required', // max 10000kb
+        'address' => 'required', 'phones' => 'required', 'description' => 'required',
+        //'website_company' => 'required|url', 
+        
+       // 'facebook_page' => 'url'
+        
+        ];
 
-            return response()->json([
-                'status' => false,
-                'message' => "$errors "
-            ],200,['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE);
+        $validation = Helpers::validate($request->all() , $rules);
+
+        if ($validation != false) return Helpers::returnJsonResponse(false, $validation, null);
+
+        $inputs = $request->all();
+         $inputs['company_code']= (rand(1000,3000));
+        
+         if(!empty($request->input('image'))){
+
+            $imageName = Helpers::uploadImage64($request->input('image'));
+            $inputs['image'] = $imageName;
         }
 
-       $inputs = $request->all();
-               $img = $this::fileToUpload($request->image);
-            $inputs['image'] = $img;
+        if ($company = company::create($inputs)) return Helpers::returnJsonResponse(true, 'company created successfully ..', $company);
+        else return Helpers::returnJsonResponse(false, 'error creating company ..', null);
 
-        if ($company = company::create($inputs)){
-            return response()->json([
-                'response' => true,
-                'message' => 'company created successfully',
-                'data' => $company
-            ], 200, ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE);
-        } else{
-            return response()->json([
-                'response' => false,
-                'message' => 'error creating company',
-            ], 200, ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE);
-        }// end else
     }
 
     /**
@@ -107,112 +101,79 @@ class apiCompaniesController extends AppBaseController
      */
     public function show($id)
     {
-   
-    $companies = company::where('id', '=', $id)
-     ->with('get_company_cat')
-      ->with('get_company_products')
-       ->with('get_company_post')
-       ->with('get_company_user')
-           ->with('get_company_jobs')->first();
-      if ( !is_null($companies) ){
-            return response()->json([
-                'status' => true,
-               'message' => 'company  successfully',
-                'data' => $companies
-           ]  ,200,
-           ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE
-);
-        }
-        else{
-            return response()->json([
-                'status' => false,
-                'message' => 'error not found   company '
-            ]);
-      }
+
+        $companies = company::where('id', '=', $id)->with('get_company_cat')
+            ->with('get_company_products')
+            ->with('get_company_post')
+            ->with('get_company_user')  ->with('get_followers')
+            ->with('get_company_jobs')
+            ->first();
+
+        if (!is_null($companies)) return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $companies);
+        else return Helpers::returnJsonResponse(false, 'no companies existed ..', null);
+
     }
 
-    /**
-     * Show the form for editing the specified company.
-     *
-     * @param  int $id
-     *
-     * @return Response
-     */
-    public function edit($id)
+    public function company_like()
+    {
+        
+        $userFollow=userFollow::where('user_id', $request->user_id )->pluck('followed_user_id');
+  $company = DB::table('company') ->whereIn('ownerid', $userFollow)->get();
+               if (!is_null($companies)) return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $a);
+        else return Helpers::returnJsonResponse(false, 'no companies existed ..', null);
+
+    }
+
+
+
+
+    public function get_popular()
     {
 
-                $companies_cat = companycategory::all();
+        $companies = company::where('popular', '=', 1)->get();
 
+        if (!is_null($companies)) return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $companies);
+        else return Helpers::returnJsonResponse(false, 'no companies existed ..', null);
 
-        $company = $this
-            ->companyRepository
-            ->findWithoutFail($id);
-
-        if (empty($company))
-        {
-            Flash::error('Company not found');
-
-            return redirect(route('mainCompanies.index'));
-        }
-
-        return view('main.companies.edit_companies' , 
-            ['company' => $company, 'companies_cat' => $companies_cat ]) ;
     }
-
-    /**
-     * Update the specified company in storage.
-     *
-     * @param  int              $id
-     * @param UpdatecompanyRequest $request
-     *
-     * @return Response
-     */
-    public function update($id, UpdatecompanyRequest $request)
+    
+    
+    
+    
+    public function my_followed_company(Request $request)
     {
-  
 
-        $company = $this ->companyRepository  ->findWithoutFail($id);
+  $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+         ]);
 
-        if (empty($company))
-        {
+        if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs  user id ...',null);
+            
+            
+        $CompanyFollow=CompanyFollow::where('user_id', $request->user_id )->pluck('company_id');
+        $company =  company::whereIn ('id', $CompanyFollow)->get();
+        if (!is_null($company)) return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $company);
+        else return Helpers::returnJsonResponse(false, 'no companies existed ..', null);
 
-            Flash::error('Company not found');
-            return redirect(route('mainCompanies.index'));
-        }
-
-        $company = $this ->companyRepository ->update($request->all() , $id);
-        Flash::success('Company updated successfully.');
-
-        return redirect(route('mainCompanies.index'));
     }
-
-    /**
-     * Remove the specified company from storage.
-     *
-     * @param  int $id
-     *
-     * @return Response
-     */
-    public function destroy($id)
+    
+    
+   public function my_company(Request $request)
     {
-        $company = $this
-            ->companyRepository
-            ->findWithoutFail($id);
+  $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+         ]);
+        if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs  user id ...',null);
+         $my_company=company::where('ownerid',$request->user_id )->first();
+        if (!is_null($my_company)) return Helpers::returnJsonResponse(true, 'my company listed successfully ..', $my_company);
+        else return Helpers::returnJsonResponse(false, 'no companies existed ..', null);
 
-        if (empty($company))
-        {
-            Flash::error('Company not found');
 
-            return redirect(route('mainCompanies.index'));
-        }
 
-        $this
-            ->companyRepository
-            ->delete($id);
-
-        Flash::success('Company deleted successfully.');
-
-        return redirect(route('mainCompanies.index'));
     }
+
+
 }
 

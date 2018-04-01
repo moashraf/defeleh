@@ -1,8 +1,8 @@
 <!-- Ownerid Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('ownerid', 'Ownerid:') !!}
-    {!! Form::number('ownerid', null, ['class' => 'form-control']) !!}
-</div>
+{{--<div class="form-group col-sm-6">--}}
+    {{--{!! Form::label('ownerid', 'Ownerid:') !!}--}}
+    {{--{!! Form::number('ownerid', null, ['class' => 'form-control']) !!}--}}
+{{--</div>--}}
 
 <!-- Name Field -->
 <div class="form-group col-sm-6">
@@ -19,7 +19,12 @@
 <!-- Categoryid Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('categoryid', 'Categoryid:') !!}
-    {!! Form::number('categoryid', null, ['class' => 'form-control']) !!}
+    <select name="categoryid" class="form-control">
+        @foreach(App\Models\companycategory::all() as $category)
+            <option value="{{$category->id}}"> {{$category->name}} </option>
+        @endforeach
+    </select>
+    {{--{!! Form::number('categoryid', null, ['class' => 'form-control']) !!}--}}
 </div>
 
 <!-- Address Field -->

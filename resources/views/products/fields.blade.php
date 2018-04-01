@@ -7,7 +7,7 @@
 <!-- Image Field -->
 <div class="form-group col-sm-12 col-lg-12">
     {!! Form::label('image', 'Image:') !!}
-    {!! Form::textarea('image', null, ['class' => 'form-control']) !!}
+    {!! Form::file('image', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Description Field -->
@@ -31,25 +31,25 @@
 <!-- Fabric Field -->
 <div class="form-group col-sm-12 col-lg-12">
     {!! Form::label('fabric', 'Fabric:') !!}
-    {!! Form::textarea('fabric', null, ['class' => 'form-control']) !!}
+    {!! Form::text('fabric', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Least Field -->
 <div class="form-group col-sm-12 col-lg-12">
     {!! Form::label('least', 'Least:') !!}
-    {!! Form::textarea('least', null, ['class' => 'form-control']) !!}
+    {!! Form::number('least', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Colors Field -->
 <div class="form-group col-sm-12 col-lg-12">
     {!! Form::label('colors', 'Colors:') !!}
-    {!! Form::textarea('colors', null, ['class' => 'form-control']) !!}
+    {!! Form::text('colors', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Images Field -->
 <div class="form-group col-sm-12 col-lg-12">
     {!! Form::label('images', 'Images:') !!}
-    {!! Form::textarea('images', null, ['class' => 'form-control']) !!}
+    <input type="file" name="images[]"  multiple>
 </div>
 
 <!-- Submit Field -->

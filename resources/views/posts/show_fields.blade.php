@@ -19,7 +19,7 @@
 <!-- Image Field -->
 <div class="form-group">
     {!! Form::label('image', 'Image:') !!}
-    <p>{!! $post->image !!}</p>
+    <p><img src="{{asset('images/').'/'.$post->image}}" alt="" width="150" height="120"> </p>
 </div>
 
 <!-- Ownerid Field -->

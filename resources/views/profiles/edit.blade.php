@@ -11,7 +11,7 @@
        <div class="box box-primary">
            <div class="box-body">
                <div class="row">
-                   {!! Form::model($profile, ['route' => ['profiles.update', $profile->id], 'method' => 'patch']) !!}
+                   {!! Form::model($profile, ['route' => ['profiles.update', $profile->id], 'method' => 'patch' , 'files' => true]) !!}
 
                         @include('profiles.fields')
 

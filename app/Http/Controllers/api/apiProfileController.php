@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class apiProfileController extends Controller
 {
+
     public function apiCreateProfile(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -27,8 +28,8 @@ class apiProfileController extends Controller
         if ($user = User::find($request->userid)){
             if (empty($user->profile)){
                 $inputs = $request->all();
-                if (!empty($request->file('profileimage'))){
-                    $imageName = Helpers::uploadImage($request->file('profileimage'));
+                if (!empty($request->input('profileimage'))){
+                    $imageName = Helpers::uploadImage64($request->input('profileimage'));
                     $inputs['profileimage'] = $imageName;
                 }
 
@@ -64,8 +65,8 @@ class apiProfileController extends Controller
 
 
         $inputs = $request->all();
-        if (!empty($request->file('profileimage'))){
-            $imageName = Helpers::uploadImage($request->file('profileimage'));
+        if (!empty($request->input('profileimage'))){
+            $imageName = Helpers::uploadImage64($request->input('profileimage'));
             $inputs['profileimage'] = $imageName;
         }
 

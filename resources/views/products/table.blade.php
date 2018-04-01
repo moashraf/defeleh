@@ -1,7 +1,7 @@
 <table class="table table-responsive" id="products-table">
     <thead>
         <tr>
-            <th>Name</th>
+        <th>Name</th>
         <th>Image</th>
         <th>Description</th>
         <th>Companyid</th>
@@ -9,7 +9,7 @@
         <th>Fabric</th>
         <th>Least</th>
         <th>Colors</th>
-        <th>Images</th>
+        {{--<th>Images</th>--}}
             <th colspan="3">Action</th>
         </tr>
     </thead>
@@ -17,14 +17,14 @@
     @foreach($products as $product)
         <tr>
             <td>{!! $product->name !!}</td>
-            <td>{!! $product->image !!}</td>
+            <td><img src="{{asset('/images/').'/'.$product->image}}" alt="" width="60" height="50" class="img img-circle"> </td>
             <td>{!! $product->description !!}</td>
             <td>{!! $product->companyid !!}</td>
             <td>{!! $product->price !!}</td>
             <td>{!! $product->fabric !!}</td>
             <td>{!! $product->least !!}</td>
             <td>{!! $product->colors !!}</td>
-            <td>{!! $product->images !!}</td>
+            {{--<td>{!! $product->images !!}</td>--}}
             <td>
                 {!! Form::open(['route' => ['products.destroy', $product->id], 'method' => 'delete']) !!}
                 <div class='btn-group'>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Helpers;
 use App\Http\Requests\CreateprofileRequest;
 use App\Http\Requests\UpdateprofileRequest;
 use App\Repositories\profileRepository;
@@ -55,9 +56,14 @@ class profileController extends AppBaseController
      */
     public function store(CreateprofileRequest $request)
     {
-        $input = $request->all();
 
-        $profile = $this->profileRepository->create($input);
+        $inputs = $request->all();
+        if (!empty($request->file('profileimage'))){
+            $imageName = Helpers::uploadImage($request->file('profileimage'));
+            $inputs['profileimage'] = $imageName;
+        }
+
+        $profile = $this->profileRepository->create($inputs);
 
         Flash::success('Profile saved successfully.');
 
@@ -122,7 +128,12 @@ class profileController extends AppBaseController
             return redirect(route('profiles.index'));
         }
 
-        $profile = $this->profileRepository->update($request->all(), $id);
+        $inputs = $request->all();
+        if (!empty($request->file('profileimage'))){
+            $imageName = Helpers::uploadImage($request->file('profileimage'));
+            $inputs['profileimage'] = $imageName;
+        }
+        $profile = $this->profileRepository->update($inputs, $id);
 
         Flash::success('Profile updated successfully.');
 

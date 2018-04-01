@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Facades\Helpers;
 use App\Models\company;
 use App\Models\companycategory;
 use Illuminate\Support\Facades\Auth;
@@ -78,9 +79,11 @@ class mainCompaniesController extends AppBaseController
     {
 
         $rules = [
-
-        'name' => 'required', 'image' => 'mimes:jpeg,jpg,png,gif|required|max:10000', // max 10000kb
-        'address' => 'required', 'phones' => 'required', 'description' => 'required'
+            'name' => 'required|min:3',
+            'image' => 'required', // max 10000kb
+            'address' => 'required|min:5',
+            'phones' => 'required',
+            'description' => 'required|min:5'
 
         ];
 
@@ -94,7 +97,6 @@ class mainCompaniesController extends AppBaseController
 
         if ($validator->fails())
         {
-
             return redirect('mainCompanies/create')
                 ->withErrors($validator)->withInput();
         }
@@ -103,9 +105,12 @@ class mainCompaniesController extends AppBaseController
 
             $input = $request->all();
             $input['ownerid'] = Auth::id();
-            $img = $this::fileToUpload($request->image);
 
-            $input['image'] = $img;
+            if ($request->has('image')){
+                $imageName = Helpers::uploadImage($request->file('image'));
+                $input['image'] = $imageName;
+            }
+
 
             $company = $this
                 ->companyRepository
@@ -185,9 +190,13 @@ class mainCompaniesController extends AppBaseController
 
         if (empty($company))
         {
-
             Flash::error('Company not found');
             return redirect(route('mainCompanies.index'));
+        }
+
+        if ($request->has('image')){
+            $imageName = Helpers::uploadImage($request->file('image'));
+            $input['image'] = $imageName;
         }
 
         $company = $this ->companyRepository ->update($request->all() , $id);

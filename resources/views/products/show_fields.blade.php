@@ -13,7 +13,7 @@
 <!-- Image Field -->
 <div class="form-group">
     {!! Form::label('image', 'Image:') !!}
-    <p>{!! $product->image !!}</p>
+    <p><img src="{{asset('images/').'/'.$product->image}}" alt="" width="150" height="120"> </p>
 </div>
 
 <!-- Description Field -->
@@ -55,7 +55,11 @@
 <!-- Images Field -->
 <div class="form-group">
     {!! Form::label('images', 'Images:') !!}
-    <p>{!! $product->images !!}</p>
+    @foreach($product->images as $image)
+        <p><img src="{{asset('images/').'/'.$image}}" alt="" width="150" height="120"> </p>
+    @endforeach
+
+
 </div>
 
 <!-- Created At Field -->

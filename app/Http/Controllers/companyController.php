@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Helpers;
 use App\Http\Requests\CreatecompanyRequest;
 use App\Http\Requests\UpdatecompanyRequest;
 use App\Repositories\companyRepository;
 use App\Http\Controllers\AppBaseController;
+use App\User;
 use Illuminate\Http\Request;
 use Flash;
 use Prettus\Repository\Criteria\RequestCriteria;
@@ -57,6 +59,11 @@ class companyController extends AppBaseController
     {
         $input = $request->all();
 
+        if ($request->has('image')){
+            $imageName = Helpers::uploadImage($request->file('image'));
+            $inputs['image'] = $imageName;
+        }
+
         $company = $this->companyRepository->create($input);
 
         Flash::success('Company saved successfully.');
@@ -77,7 +84,6 @@ class companyController extends AppBaseController
 
         if (empty($company)) {
             Flash::error('Company not found');
-
             return redirect(route('companies.index'));
         }
 
@@ -121,8 +127,13 @@ class companyController extends AppBaseController
 
             return redirect(route('companies.index'));
         }
+        $inputs = $request->all();
+        if ($request->has('image')){
+            $imageName = Helpers::uploadImage($request->file('image'));
+            $inputs['image'] = $imageName;
+        }
 
-        $company = $this->companyRepository->update($request->all(), $id);
+        $company = $this->companyRepository->update($inputs, $id);
 
         Flash::success('Company updated successfully.');
 

@@ -16,7 +16,7 @@
         <tr>
             <td>{!! $company->ownerid !!}</td>
             <td>{!! $company->name !!}</td>
-            <td>{!! $company->image !!}</td>
+            <td><img src="{{asset('/images/').'/'.$company->image}}" alt="" width="60" height="50" class="img img-circle"> </td>
             <td>{!! $company->categoryid !!}</td>
             <td>{!! $company->address !!}</td>
             <td>{!! $company->phones !!}</td>

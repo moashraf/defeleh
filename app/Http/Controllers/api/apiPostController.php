@@ -8,6 +8,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Prettus\Repository\Criteria\RequestCriteria;
+use App\Models\post as Post;
 
 class apiPostController extends Controller
 {
@@ -24,17 +25,30 @@ class apiPostController extends Controller
         $posts = $this->postRepository->all();
 
         if (count($posts) > 0)
-            return Helpers::returnJsonResponse(true,'posts listed successfully',$posts);
+            return Helpers::returnJsonResponse(true,'posts listed successfully', $this->postRepository->with('comments')->with('likes')->get());
         else
             return Helpers::returnJsonResponse(false,'no posts existed',null);
     }
 
     public function store(Request $request)
     {
+
+        $rules = [
+            'title' => 'required|min:3',
+            'content' => 'required|min:3',
+           // 'image' => 'required'
+        ];
+
+        $validation = Helpers::validate($request->all() , $rules);
+
+        if ($validation != false)
+            return Helpers::returnJsonResponse(false, $validation ,null);
+
         $inputs = $request->all();
-        if(!empty($request->file('image'))){
-          $imageName = Helpers::uploadImage($request->file('image'));
-          $inputs['image'] = $imageName;
+        if(!empty($request->input('image'))){
+
+            $imageName = Helpers::uploadImage64($request->input('image'));
+            $inputs['image'] = $imageName;
         }
         // if its owner (user) post, get it's type
         if ($request->has('ownerid')){
@@ -59,18 +73,20 @@ class apiPostController extends Controller
 
     public function show($id){
         $post = $this->postRepository->findWithoutFail($id);
+
         if (empty($post))
-            return Helpers::returnJsonResponse(false,'post not found',null);
+            return Helpers::returnJsonResponse(false, 'post not found', null);
         else
-            return Helpers::returnJsonResponse(true,'post found successfully',$post);
+            return Helpers::returnJsonResponse(true, 'post found successfully', $post->with(['comments', 'likes'])->get());
+
     }
 
     public function update(Request $request, $id){
         $post = $this->postRepository->findWithoutFail($id);
         $inputs = $request->all();
         if (!empty($post)){
-            if (!empty($request->file('image'))){
-                $imageName = Helpers::uploadImage($request->file(image));
+            if (!empty($request->input('image'))){
+                $imageName = Helpers::uploadImage64($request->input('image'));
                 $inputs['image'] = $imageName;
             } // end if image sent
 
@@ -91,6 +107,8 @@ class apiPostController extends Controller
 
         if (!empty($post)){
 
+            $post->likes()->delete();
+            $post->comments()->delete();
             if ($post = $this->postRepository->delete($id))
                 return Helpers::returnJsonResponse(true,'post deleted', $post);
             else
@@ -106,14 +124,23 @@ class apiPostController extends Controller
     public function getPosts(Request $request)
     {
         if ($request->has('companyid')){
-            $posts = $this->postRepository->findByField('companyid',$request->has('companyid'));
+            $posts = Post::where('companyid', '=', $request->input('companyid'))->with('comments')->with('likes')->get();
             if (count($posts) > 0)
                 return Helpers::returnJsonResponse(true,'posts found successfully',$posts);
             else
                 return Helpers::returnJsonResponse(false,'posts not found',null);
         } // if need company posts
         else if ($request->has('ownerid')){
-            $posts = $this->postRepository->findByField('ownerid',$request->input('ownerid'));
+            $posts = Post::where('ownerid', '=', $request->input('ownerid'))->with('comments')->with('likes')->get();
+                
+                
+                for($i = 0 ; $i<count($posts);$i++){
+                    $likes = $posts[$i]->likes ;
+                  //  dd( $likes);
+                    $isLiked = searchInLikes($request->input('ownerid'),$likes);
+                    $posts[$i]->isLiked = $isLiked;
+                }
+                 
             if (count($posts) > 0)
                 return Helpers::returnJsonResponse(true,'posts found successfully',$posts);
             else
@@ -121,3 +148,18 @@ class apiPostController extends Controller
         }
     }
 }
+
+     function searchInLikes($current_id,$likes){
+                   // dd($likes);
+
+           foreach($likes as $like ){
+               $id = $like->userid ;
+               if($id == $current_id){
+                   return true ;
+               }
+               
+           }
+           
+           return false ;
+    }
+    

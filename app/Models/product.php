@@ -72,5 +72,10 @@ class product extends Model
         
     ];
 
+    public function getImagesAttribute($value)
+    {
+        return explode(',',$value);
+    }
+
     
 }

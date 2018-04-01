@@ -1,9 +1,9 @@
 <?php
 
- 
- namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Facades\Helpers;
 use App\Models\companycategory;
 use App\Http\Requests\CreatecompanycategoryRequest;
 use App\Http\Requests\UpdatecompanycategoryRequest;
@@ -31,38 +31,24 @@ class apicompanycategoryController extends AppBaseController
      * @return Response
      */
     public function index(Request $request)
-    { 
-    $this->companycategoryRepository->pushCriteria(new RequestCriteria($request));
-        $companycategories = $this->companycategoryRepository->all();
+    {
+        $companycategories = companycategory::where('parentid', '=', 0) ->get();
 
-       
+        if (!$companycategories->isEmpty()) return Helpers::returnJsonResponse(true, 'categories listed successfully ..', $companycategories);
 
-        if ( !$companycategories->isEmpty()){
-            return response()->json([
-                'status' => true,
-               'message' => 'companycategory successfully',
-                'data' => $companycategories
-           ]  ,200,
-           ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE
-);
-        }
-        else{
-            return response()->json([
-                'status' => false,
-                'message' => 'error  not found  companycategory '
-            ]);
-      }
-
-
-
-
-
+        else return Helpers::returnJsonResponse(false, 'categories not found ..', null);
     }
 
-   
- 
+    public function get_children($cat_id)
+    {
 
-  
-    
- 
+        $companycategory = companycategory::where('parentid', $cat_id)->orderBy('name', 'desc')
+            ->get();
+
+        if (!$companycategory->isEmpty()) return Helpers::returnJsonResponse(true, 'categories listed successfully ..', $companycategory);
+
+        else return Helpers::returnJsonResponse(false, 'categories not found ..', null);
+    }
+
 }
+

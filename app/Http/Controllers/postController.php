@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Helpers;
 use App\Http\Requests\CreatepostRequest;
 use App\Http\Requests\UpdatepostRequest;
 use App\Repositories\postRepository;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Flash;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Response;
+use App\User;
 
 class postController extends AppBaseController
 {
@@ -56,10 +58,28 @@ class postController extends AppBaseController
     public function store(CreatepostRequest $request)
     {
         $input = $request->all();
+        if ($request->has('image')){
+            $imageName = Helpers::uploadImage($request->file('image'));
+            $input['image'] = $imageName;
+        }
 
-        $post = $this->postRepository->create($input);
+        if ($request->has('ownerid')){
+            $user = User::find($request->input('ownerid'));
+            if (!empty($user)){
+                if ($user->user_role == 0)
+                    $input['ownertype'] = 'User';
+                else
+                    $input['ownertype'] = 'Admin';
+            }else{
+                Flash::success('User Not Found.');
+                return redirect(route('posts.index'));
+            }
+        }
 
-        Flash::success('Post saved successfully.');
+        if ($this->postRepository->create($input))
+            Flash::success('Post saved successfully.');
+        else
+            Flash::success('Error Saving Post.');
 
         return redirect(route('posts.index'));
     }
@@ -122,7 +142,14 @@ class postController extends AppBaseController
             return redirect(route('posts.index'));
         }
 
-        $post = $this->postRepository->update($request->all(), $id);
+        $inputs = $request->all();
+        if ($request->has('image')){
+            $imageName = Helpers::uploadImage($request->file('image'));
+            $inputs['image'] = $imageName;
+        }
+
+
+        $post = $this->postRepository->update($inputs, $id);
 
         Flash::success('Post updated successfully.');
 

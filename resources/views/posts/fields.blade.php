@@ -13,19 +13,19 @@
 <!-- Image Field -->
 <div class="form-group col-sm-12 col-lg-12">
     {!! Form::label('image', 'Image:') !!}
-    {!! Form::textarea('image', null, ['class' => 'form-control']) !!}
+    {!! Form::file('image', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Ownerid Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('ownerid', 'Ownerid:') !!}
+    {!! Form::label('ownerid', 'Owner id:') !!}
     {!! Form::number('ownerid', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Ownertype Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('ownertype', 'Ownertype:') !!}
-    {!! Form::text('ownertype', null, ['class' => 'form-control']) !!}
+    {!! Form::label('companyid', 'Company id:') !!}
+    {!! Form::number('companyid', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Submit Field -->

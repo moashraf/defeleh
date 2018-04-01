@@ -15,8 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','user_role','api_token'
-    ];
+        'name', 'email', 'password','user_role','api_token','activate','social_id','user_name'  ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -29,6 +28,10 @@ class User extends Authenticatable
 
     public function profile(){
         return $this->hasOne('App\Models\profile','userid','id');
+    }
+
+    public function comments(){
+        return $this->hasMany('App\Models\comment','ownerid','id');
     }
 
     public function isAdmin(){

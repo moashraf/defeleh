@@ -14,7 +14,7 @@ class CreateCompanyTable extends Migration {
 	{
 		Schema::create('company', function(Blueprint $table)
 		{
-			$table->integer('id', true);
+			$table->increments('id');
 			$table->integer('ownerid');
 			$table->string('name', 400);
 			$table->text('image', 65535);
@@ -22,6 +22,10 @@ class CreateCompanyTable extends Migration {
 			$table->text('address', 65535);
 			$table->text('phones', 65535);
 			$table->text('description', 65535);
+			$table->integer('popular', 400);
+			$table->integer('company_code', 100);
+			$table->string('website_company', 400);
+			$table->string('facebook_page', 400);
 			$table->timestamps();
 			$table->softDeletes();
 		});

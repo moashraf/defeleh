@@ -111,6 +111,7 @@ class companycategoryController extends AppBaseController
      */
     public function show($id)
     {
+        dd("dfff");
         $companycategory = $this->companycategoryRepository->findWithoutFail($id);
 
         if (empty($companycategory)) {

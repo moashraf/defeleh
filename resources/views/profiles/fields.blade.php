@@ -19,7 +19,7 @@
 <!-- Profileimage Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('profileimage', 'Profileimage:') !!}
-    {!! Form::text('profileimage', null, ['class' => 'form-control']) !!}
+    {!! Form::file('profileimage', null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- Address Field -->
@@ -28,11 +28,6 @@
     {!! Form::text('address', null, ['class' => 'form-control']) !!}
 </div>
 
-<!-- role Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('role', 'Role:') !!}
-    {!! Form::select('user_role', [0 => 'User', 1 => 'Admin'], null, ['placeholder' => 'Select User Type...', 'class' => 'form-control']); !!}
-</div>
 
 <!-- Submit Field -->
 <div class="form-group col-sm-12">

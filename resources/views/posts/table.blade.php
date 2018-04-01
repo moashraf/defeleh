@@ -4,7 +4,7 @@
             <th>Title</th>
         <th>Content</th>
         <th>Image</th>
-        <th>Ownerid</th>
+        {{--<th>Ownerid</th>--}}
         <th>Ownertype</th>
             <th colspan="3">Action</th>
         </tr>
@@ -14,8 +14,8 @@
         <tr>
             <td>{!! $post->title !!}</td>
             <td>{!! $post->content !!}</td>
-            <td>{!! $post->image !!}</td>
-            <td>{!! $post->ownerid !!}</td>
+            <td><img src="{{asset('images').'/'.$post->image}}" alt="" width="60" height="50" class="img img-circle"> </td>
+            {{--<td>{!! $post->ownerid !!}</td>--}}
             <td>{!! $post->ownertype !!}</td>
             <td>
                 {!! Form::open(['route' => ['posts.destroy', $post->id], 'method' => 'delete']) !!}

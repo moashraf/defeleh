@@ -61,5 +61,13 @@ class post extends Model
         
     ];
 
+    public function comments(){
+        return $this->hasMany('App\Models\comment','postid','id');
+    }
+
+    public function likes(){
+        return $this->hasMany('App\Models\like', 'postid', 'id');
+    }
+
     
 }

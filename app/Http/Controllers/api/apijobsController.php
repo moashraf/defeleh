@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Facades\Helpers;
 use App\Models\job;
 use App\Models\company;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\CreatejobRequest;
-use App\Http\Requests\UpdatejobRequest;
 use App\Repositories\jobRepository;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
@@ -29,24 +27,14 @@ class apijobsController extends AppBaseController
      * @param Request $request
      * @return Response
      */
-    public function index(  $companyid)
+    public function index($companyid)
     {
-         $job = job::where('companyid', '=', $companyid )->get();
-                   if (!$job->isEmpty() ){
-            return response()->json([
-                'status' => true,
-               'message' => 'job  successfully',
-                'data' => $job
-           ]  ,200,
-           ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE
-);
-        }
-        else{
-            return response()->json([
-                'status' => false,
-                'message' => 'error not    job found '
-            ]);
-      }
+        $jobs = job::where('companyid', '=', $companyid )->get();
+        if (!$jobs->isEmpty() )
+            return Helpers::returnJsonResponse(true, 'jobs Created Successfully ..', $jobs);
+        else
+            return Helpers::returnJsonResponse(false, 'jobs not found ..', null);
+
     }
 
     /**
@@ -57,11 +45,7 @@ class apijobsController extends AppBaseController
     public function create()
     {
 
-
-         $companies = company::where('ownerid', '=', Auth::id() )->get();
-      return view('main.jobs.create')  ->with('companies', $companies);
-
-     }
+    }
 
     /**
      * Store a newly created job in storage.
@@ -70,15 +54,29 @@ class apijobsController extends AppBaseController
      *
      * @return Response
      */
-    public function store(CreatejobRequest $request)
+    public function store(Request $request)
     {
-        $input = $request->all();
+        $rules = [
+            'title' => 'required|min:3',
+            'content' => 'required|min:3',
+            'contact' => 'required',
+            'companyid' => 'required'
+        ];
 
-        $job = $this->jobRepository->create($input);
+        $validation = Helpers::validate($request->all() , $rules);
+        if ($validation != false)
+            return Helpers::returnJsonResponse(false, $validation ,null);
 
-        Flash::success('Job saved successfully.');
+        $inputs = $request->all();
 
-        return redirect(route('mainjobs.index'));
+        if (!empty(company::find($request->input('companyid')))){
+            if ($job = $this->jobRepository->create($inputs))
+                return Helpers::returnJsonResponse(true, 'Job Created Successfully ..', $job);
+            else
+                return Helpers::returnJsonResponse(false, 'Error Creating Job ..', null);
+        }
+        else
+            return Helpers::returnJsonResponse(false, 'Company for this job not found ..', null);
     }
 
     /**
@@ -91,21 +89,10 @@ class apijobsController extends AppBaseController
     public function show($id)
     {
         $job = $this->jobRepository->findWithoutFail($id);
-                    if (!is_null($job) ){
-            return response()->json([
-                'status' => true,
-               'message' => 'job  successfully',
-                'data' => $job
-           ]  ,200,
-           ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE
-);
-        }
-        else{
-            return response()->json([
-                'status' => false,
-                'message' => 'error not    job found '
-            ]);
-      }
+        if (!is_null($job) )
+            return Helpers::returnJsonResponse(true, 'job found Successfully ..', $job);
+        else
+            return Helpers::returnJsonResponse(false, 'job not found ..', null);
 
     }
 
@@ -118,15 +105,7 @@ class apijobsController extends AppBaseController
      */
     public function edit($id)
     {
-        $job = $this->jobRepository->findWithoutFail($id);
 
-        if (empty($job)) {
-            Flash::error('Job not found');
-
-            return redirect(route('jobs.index'));
-        }
-
-        return view('jobs.edit')->with('job', $job);
     }
 
     /**
@@ -137,21 +116,20 @@ class apijobsController extends AppBaseController
      *
      * @return Response
      */
-    public function update($id, UpdatejobRequest $request)
+    public function update($id, Request $request)
     {
         $job = $this->jobRepository->findWithoutFail($id);
+        $inputs = $request->all();
+        if (!empty($job)){
 
-        if (empty($job)) {
-            Flash::error('Job not found');
+            if ($job = $this->jobRepository->update($inputs, $id))
+                return Helpers::returnJsonResponse(true,'job updated successfully ..', $job);
+            else
+                return Helpers::returnJsonResponse(false, 'error updating job ..', null);
 
-            return redirect(route('jobs.index'));
+        }else{
+            return Helpers::returnJsonResponse(false, 'job not existed .. ', null);
         }
-
-        $job = $this->jobRepository->update($request->all(), $id);
-
-        Flash::success('Job updated successfully.');
-
-        return redirect(route('jobs.index'));
     }
 
     /**
@@ -161,29 +139,26 @@ class apijobsController extends AppBaseController
      *
      * @return Response
      */
-    public function destroy($id)
-    {
-        $job = $this->jobRepository->findWithoutFail($id);
 
-        if (empty($job)) {
-            Flash::error('Job not found');
+        public function delete($id)
+        {
+            $job = $this->jobRepository->findWithoutFail($id);
 
-            return redirect(route('jobs.index'));
+            if (!empty($job)){
+
+                if ($job = $this->jobRepository->delete($id))
+                    return Helpers::returnJsonResponse(true,'job deleted ..', null);
+                else
+                    return Helpers::returnJsonResponse(false,'error deleting job ..',null);
+
+            }
+            else
+                return Helpers::returnJsonResponse(false,'job not existed',null);
         }
 
-        $this->jobRepository->delete($id);
+        public function Jobs_in_company($company_id)
+        {
 
-        Flash::success('Job deleted successfully.');
-
-        return redirect(route('jobs.index'));
-    }
-
-  public function     Jobs_in_company($company_id)
-    {
-
-
- $jobs = job::where('companyid', '=',$company_id )->paginate(2);
-   return view('main.jobs.index')  ->with('jobs', $jobs);
-    }
+        }
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Helpers;
 use App\Http\Requests\CreateproductRequest;
 use App\Http\Requests\UpdateproductRequest;
 use App\Repositories\productRepository;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Flash;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Response;
+use App\Models\company as Company;
 
 class productController extends AppBaseController
 {
@@ -56,6 +58,23 @@ class productController extends AppBaseController
     public function store(CreateproductRequest $request)
     {
         $input = $request->all();
+
+        $company = Company::find($request->input('companyid'));
+        if (empty($company)){
+            Flash::error('Company not found.');
+            return redirect(route('products.index'));
+        }
+
+        if ($request->has('image')){
+            $imageName = Helpers::uploadImage($request->file('image'));
+            $input['image'] = $imageName;
+        }
+
+        if ($request->has('images')){
+//            return var_dump($request->file('images'));
+            $imageName = Helpers::uploadImages($request->file('images'));
+            $input['images'] = $imageName;
+        }
 
         $product = $this->productRepository->create($input);
 
@@ -122,7 +141,25 @@ class productController extends AppBaseController
             return redirect(route('products.index'));
         }
 
-        $product = $this->productRepository->update($request->all(), $id);
+        $company = Company::find($request->input('companyid'));
+        if (empty($company)){
+            Flash::error('Company not found.');
+            return redirect(route('products.index'));
+        }
+
+        $input = $request->all();
+        if ($request->has('image')){
+            $imageName = Helpers::uploadImage($request->file('image'));
+            $input['image'] = $imageName;
+        }
+
+        if ($request->has('images')){
+//            return var_dump($request->file('images'));
+            $imageName = Helpers::uploadImages($request->file('images'));
+            $input['images'] = $imageName;
+        }
+
+        $product = $this->productRepository->update($input, $id);
 
         Flash::success('Product updated successfully.');
 

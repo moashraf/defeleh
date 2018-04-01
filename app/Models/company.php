@@ -39,7 +39,11 @@ class company extends Model
         'categoryid',
         'address',
         'phones',
-        'description'
+        'company_code',
+        'website_company',
+        'facebook_page',
+                'description'
+        
     ];
 
     /**
@@ -67,30 +71,36 @@ class company extends Model
         
     ];
 
-        public function get_company_user ()
-{
-         return $this->hasOne('App\User','id','ownerid');
-}
+    // relations
 
+ public function get_like ()
+    {
+return $this->hasMany('App\Models\like', 'company_id', 'id');
+    }
 
-
+    public function get_company_user ()
+    {
+        return $this->hasOne('App\User','id','ownerid');
+    }
     public function get_company_cat ()
-{
-         return $this->hasOne('App\Models\companycategory','id','categoryid');
-}
+    {
+        return $this->hasOne('App\Models\companycategory','id','categoryid');
+    }
     public function get_company_jobs ()
-{
-return $this->hasMany('App\Models\job', 'companyid', 'id');
-}
-   public function get_company_products ()
-{
-return $this->hasMany('App\Models\product', 'companyid', 'id');
-}
-
-
-   public function get_company_post ()
-{
-return $this->hasMany('App\Models\post', 'companyid', 'id');
-}
+    {
+        return $this->hasMany('App\Models\job', 'companyid', 'id');
+    }
+    public function get_company_products ()
+    {
+        return $this->hasMany('App\Models\product', 'companyid', 'id');
+    }
+    public function get_company_post ()
+    {
+        return $this->hasMany('App\Models\post', 'companyid', 'id');
+    }
+      public function get_followers ()
+    {
+        return $this->hasMany('App\Models\CompanyFollow', 'company_id', 'id');
+    }
 
 }

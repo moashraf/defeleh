@@ -19,7 +19,7 @@
 <!-- Image Field -->
 <div class="form-group">
     {!! Form::label('image', 'Image:') !!}
-    <p>{!! $company->image !!}</p>
+    <p><img src="{{asset('images/').'/'.$company->image}}" alt="" width="150" height="120"> </p>
 </div>
 
 <!-- Categoryid Field -->

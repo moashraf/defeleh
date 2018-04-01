@@ -16,7 +16,7 @@
             <td>{!! $profile->userid !!}</td>
             <td>{!! $profile->fullname !!}</td>
             <td>{!! $profile->cellphone !!}</td>
-            <td>{!! $profile->profileimage !!}</td>
+            <td><img src="{{asset('/images/').'/'.$profile->profileimage}}" alt="" width="60" height="50" class="img img-circle"></td>
             <td>{!! $profile->user_role == 1 ? 'Admin' : 'User' !!}</td>
             <td>{!! $profile->address !!}</td>
             <td>
