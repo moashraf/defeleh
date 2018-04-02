@@ -9,6 +9,7 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\productRepository;
 use Illuminate\Http\Request;
 use Prettus\Repository\Criteria\RequestCriteria;
+use Illuminate\Support\Facades\Validator;
 
 
 class apiproductController extends AppBaseController
@@ -26,18 +27,32 @@ class apiproductController extends AppBaseController
      * @param Request $request
      * @return Response
      */
-    public function index($companyid)
+    public function index(Request $request)
     {
-        $products = product::where('companyid', '=', $companyid )->get();
+
+     $validator = Validator::make($request->all(), [
+            'company_id' => 'required'
+        ]);
+         if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs   ...', null );
+
+        $products = product::where('companyid', '=', $request->company_id )->get();
         if (!$products->isEmpty() )
             return Helpers::returnJsonResponse(true, 'products found successfully ..', $products);
         else
             return Helpers::returnJsonResponse(false, 'products not found ..', null);
       }
 
-    public function show($id)
+    public function show(Request $request)
     {
-        $product = product::find($id);
+
+        
+ $validator = Validator::make($request->all(), [
+            'Product_id' => 'required'
+        ]);
+         if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs   ...', null );
+        $product = product::find($request->Product_id);
 
         if (!is_null($product) )
             return Helpers::returnJsonResponse(true, 'product found successfully ..', $product);

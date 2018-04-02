@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Flash;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Response;
+use Illuminate\Support\Facades\Validator;
 
 class apijobsController extends AppBaseController
 {
@@ -27,9 +28,17 @@ class apijobsController extends AppBaseController
      * @param Request $request
      * @return Response
      */
-    public function index($companyid)
+    public function index(Request $request)
     {
-        $jobs = job::where('companyid', '=', $companyid )->get();
+
+  $validator = Validator::make($request->all(), [
+            'company_id' => 'required'
+        ]);
+         if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs     ...', null );
+
+        
+        $jobs = job::where('companyid', '=', $request->company_id )->get();
         if (!$jobs->isEmpty() )
             return Helpers::returnJsonResponse(true, 'jobs Created Successfully ..', $jobs);
         else
@@ -37,23 +46,7 @@ class apijobsController extends AppBaseController
 
     }
 
-    /**
-     * Show the form for creating a new job.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-
-    }
-
-    /**
-     * Store a newly created job in storage.
-     *
-     * @param CreatejobRequest $request
-     *
-     * @return Response
-     */
+     
     public function store(Request $request)
     {
         $rules = [
@@ -86,9 +79,18 @@ class apijobsController extends AppBaseController
      *
      * @return Response
      */
-    public function show($id)
+    public function show( Request $request)
     {
-        $job = $this->jobRepository->findWithoutFail($id);
+
+          $validator = Validator::make($request->all(), [
+            'job_id' => 'required'
+        ]);
+         if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs     ...', null );
+
+
+         
+        $job = $this->jobRepository->findWithoutFail($request->job_id);
         if (!is_null($job) )
             return Helpers::returnJsonResponse(true, 'job found Successfully ..', $job);
         else
@@ -96,26 +98,7 @@ class apijobsController extends AppBaseController
 
     }
 
-    /**
-     * Show the form for editing the specified job.
-     *
-     * @param  int $id
-     *
-     * @return Response
-     */
-    public function edit($id)
-    {
-
-    }
-
-    /**
-     * Update the specified job in storage.
-     *
-     * @param  int              $id
-     * @param UpdatejobRequest $request
-     *
-     * @return Response
-     */
+     
     public function update($id, Request $request)
     {
         $job = $this->jobRepository->findWithoutFail($id);

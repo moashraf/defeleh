@@ -20,10 +20,10 @@ class CreateProductsTable extends Migration {
 			$table->text('description', 65535);
 			$table->integer('companyid');
 			$table->integer('price');
-			$table->text('fabric', 65535);
-			$table->text('least', 65535);
-			$table->text('colors', 65535);
-			$table->text('images', 65535);
+			$table->string('fabric', 400);
+			$table->string('least', 400);
+			$table->string('colors', 400);
+			$table->integer('images_id');
 			$table->timestamps();
 			$table->softDeletes();
 		});

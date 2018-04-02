@@ -17,7 +17,7 @@ class CreateJobsTable extends Migration {
 			$table->integer('id', true);
 			$table->string('title', 400);
 			$table->text('content', 65535);
-			$table->text('contact', 65535);
+			$table->string('contact', 400);
 			$table->integer('companyid');
 			$table->timestamps();
 			$table->softDeletes();

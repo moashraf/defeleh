@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Prettus\Repository\Criteria\RequestCriteria;
 use App\Models\post as Post;
+use Illuminate\Support\Facades\Validator;
 
 class apiPostController extends Controller
 {
@@ -71,13 +72,19 @@ class apiPostController extends Controller
 
     }
 
-    public function show($id){
-        $post = $this->postRepository->findWithoutFail($id);
+    public function show(Request $request){
+
+    $validator = Validator::make($request->all(), [
+            'post_id' => 'required'
+        ]);
+         if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs    ...', null );
+       $post = Post::where('id', '=', $request->input('post_id'))->with('comments')->with('likes')->first();
 
         if (empty($post))
             return Helpers::returnJsonResponse(false, 'post not found', null);
         else
-            return Helpers::returnJsonResponse(true, 'post found successfully', $post->with(['comments', 'likes'])->get());
+            return Helpers::returnJsonResponse(true, 'post found successfully', $post);
 
     }
 
@@ -123,6 +130,7 @@ class apiPostController extends Controller
 
     public function getPosts(Request $request)
     {
+
         if ($request->has('companyid')){
             $posts = Post::where('companyid', '=', $request->input('companyid'))->with('comments')->with('likes')->get();
             if (count($posts) > 0)

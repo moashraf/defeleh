@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 use App\Models\company;
 use App\Models\CompanyFollow;
 use App\Models\companycategory;
+use App\Models\userFollow;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Facades\Helpers;
@@ -25,9 +26,18 @@ class apiCompaniesController extends AppBaseController
         $this->companyRepository = $companyRepo;
     }
 
-    public static function company_search($keyword)
+    public static function company_search(Request $request )
     {
-$companies = company::where('name', 'LIKE', "%$keyword%")->Orwhere('description', 'LIKE', "%$keyword%")->get();
+
+        $validator = Validator::make($request->all(), [
+            'keyword' => 'required'
+        ]);
+         if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs    ...', null );
+
+        $companies = company::where('name', 'LIKE', "%$request->keyword%")
+        ->Orwhere('description', 'LIKE', "%$request->keyword%")
+        ->get();
         if (  !$companies->isEmpty() ){ return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $companies);}
         else { return Helpers::returnJsonResponse(false, 'no companies existed ..', null);}
       
@@ -45,9 +55,17 @@ $companies = company::where('name', 'LIKE', "%$keyword%")->Orwhere('description'
     
     
     
-    public function cat($cat)
+    public function cat(Request $request)
     {
-        $companies = company::where('categoryid', '=', $cat)->get();
+
+$validator = Validator::make($request->all(), [
+            'cat_id' => 'required'
+        ]);
+         if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs    ...', null );
+
+
+        $companies = company::where('categoryid', '=', $request->cat_id )->get();
 
         if (!$companies->isEmpty()) return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $companies);
         else return Helpers::returnJsonResponse(false, 'companies not existed ..', null);
@@ -55,7 +73,8 @@ $companies = company::where('name', 'LIKE', "%$keyword%")->Orwhere('description'
     }
 
     public function cat_and_company()
-    {
+    { 
+
 
         $cat_and_company = companycategory::with('get_company')->get();
 
@@ -99,13 +118,20 @@ $companies = company::where('name', 'LIKE', "%$keyword%")->Orwhere('description'
      *
      * @return Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
+             $validator = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+         if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs    ...', null );
 
-        $companies = company::where('id', '=', $id)->with('get_company_cat')
+        $companies = company::where('id', '=', $request->id)
+            ->with('get_company_cat')
             ->with('get_company_products')
             ->with('get_company_post')
-            ->with('get_company_user')  ->with('get_followers')
+            ->with('get_company_user') 
+            ->with('get_followers')
             ->with('get_company_jobs')
             ->first();
 
@@ -114,12 +140,13 @@ $companies = company::where('name', 'LIKE', "%$keyword%")->Orwhere('description'
 
     }
 
-    public function company_like()
+    public function company_like(Request $request)
     {
         
         $userFollow=userFollow::where('user_id', $request->user_id )->pluck('followed_user_id');
-  $company = DB::table('company') ->whereIn('ownerid', $userFollow)->get();
-               if (!is_null($companies)) return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $a);
+ // $company = DB::table('company') ->whereIn('ownerid', $userFollow)->get();
+               if (!is_null($companies)) 
+                return Helpers::returnJsonResponse(true, 'companies listed successfully ..', $userFollow);
         else return Helpers::returnJsonResponse(false, 'no companies existed ..', null);
 
     }

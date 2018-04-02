@@ -18,29 +18,35 @@ class apiSigninController extends Controller
  public function forget_password(Request $request){
 
        $validator = Validator::make($request->all(), [
-
             'email' => 'required|email'
-
         ]);
-
-$errors = $validator->errors();
-
-
-        if ($validator->fails())
+         if ($validator->fails())
             return Helpers::returnJsonResponse(false,'Error , Missing inputs   email  or Error  email ...', null );
 
 
        $user= user::where('email',  $request->input('email'))->first();
          if( !is_null($user) ){
-        $new_pass = str_random(10);
-        $user->password=bcrypt($new_pass);
-        $user->save();
+        $new_pass = (rand(100000,300000));
+         $user->password=bcrypt($new_pass);
+         $user->save();
 
-                    $message =   Helpers::mail_code($new_pass,$user->email);;
+   $to = "$user->email";
+            $subject = "defileh email";
+
+                    $message =   Helpers::mail_code($new_pass,$user->email);
+                        $headers = "MIME-Version: 1.0" . "\r\n";
+            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+            // More headers
+            $headers .= 'From: <info@defileh.com>' . "\r\n";
+
+            mail($to, $subject, $message, $headers);
+
+
 
          return Helpers::returnJsonResponse(true,'     successfully  Send  ...' ,$user );
                 }else{
-                    return Helpers::returnJsonResponse(false,' code  not activated ...' ,null );
+                    return Helpers::returnJsonResponse(false,' new pass  not activated ...' ,null );
                 }
 
         
@@ -51,13 +57,24 @@ $errors = $validator->errors();
 
 
 
-    public function active_my_account( $user_id ,$code ){
-        $user = user::find( $user_id );
-         if( $user->activate== $code ){
+    public function active_my_account( Request $request){
+
+     $validator = Validator::make($request->all(), [
+
+            'user_id' => 'required',
+            'code' => 'required'
+
+        ]);
+      $errors = $validator->errors();
+        if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs  ...', null );
+ 
+        $user = user::find( $request->user_id );
+         if( $user->activate== $request->code  ){
         $user->activate="1";
         $user->save();
         
-         return Helpers::returnJsonResponse(true,'     successfully  activated ...' ,$user );
+         return Helpers::returnJsonResponse(true,' successfully  activated ...' ,$user );
                 }else{
                     return Helpers::returnJsonResponse(false,' code  not activated ...' ,null );
                 }
@@ -139,30 +156,30 @@ $errors = $validator->errors();
         
     }
  
-      public function resending_email( $user_id  ){
-        $user = user::find( $user_id );
+      public function resending_email( Request $request){
+
+    $validator = Validator::make($request->all(), [
+            'user_id' => 'required|min:3'
+        ]);
+
+        if ($validator->fails())
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs or email already existes  ...',null);
+
+        $user = user::find($request->user_id);
         
          if( $user){
             $activate=   (rand(1000,3000));
             $to = "$user->email";
             $subject = "defileh email";
-
             $message =   Helpers::mail_code($activate,$user->email);;
-
             // Always set content-type when sending HTML email
             $headers = "MIME-Version: 1.0" . "\r\n";
             $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-
             // More headers
             $headers .= 'From: <info@defileh.com>' . "\r\n";
-
             mail($to, $subject, $message, $headers);
-            
-            
-            
-            
-        $user->activate=$activate;
-        $user->save();
+             $user->activate=$activate;
+             $user->save();
         
          return Helpers::returnJsonResponse(true,'     successfully  send ...' ,null );
                 }else{

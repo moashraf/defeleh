@@ -78,8 +78,17 @@ class apiProfileController extends Controller
 
     }
 
-    public function apiGetProfile($id){
-        $user = User::find($id);
+    public function apiGetProfile(Request $request){
+
+     $validator = Validator::make($request->all(), [
+            'id' => 'required:min:3'
+        ]);
+
+        if ($validator->fails()){
+            return Helpers::returnJsonResponse(false,'Error , Missing inputs',null);
+}
+
+        $user = User::find($request->id);
 
         if (empty($user->profile))
             return Helpers::returnJsonResponse(false,'user dont have profile',null);
