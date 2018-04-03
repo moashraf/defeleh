@@ -12,31 +12,22 @@
 
 Route::group(['middleware' => 'auth'], function ()
 {
-    Route::resource('mainCompanies', 'mainCompaniesController');
-    Route::get('mainCompanies_cat/{cat}', 'mainCompaniesController@cat');
+    //Route::resource('mainCompanies', 'mainCompaniesController');
+   // Route::get('mainCompanies_cat/{cat}', 'mainCompaniesController@cat');
 
 
     // ==================== mekk  ====================
 
-    Route::resource('user-profile', 'mainProfileController');
+    //Route::resource('user-profile', 'mainProfileController');
 
-    Route::resource('mainjobs', 'mainjobsController');
-    Route::get('company_jobs/{company_id}', 'mainjobsController@Jobs_in_company');
+   // Route::resource('mainjobs', 'mainjobsController');
+    //Route::get('company_jobs/{company_id}', 'mainjobsController@Jobs_in_company');
 
 
 
-});
+//Route::group(['middleware' => 'admin'], function(){
 
-Auth::routes();
- 
-Route::get('/create-user', 'userController@showSignup');
-Route::post('/create-user', 'userController@signup')->name('create-user');
-Route::get('/logging-user', 'userController@showSignin');
-Route::post('/logging-user', 'userController@signin')->name('logging-user');
-
-Route::get('/home', 'HomeController@index');
- 
-Route::group(['middleware' => 'admin'], function(){
+   // Route::get('/home', 'HomeController@index');
 
     Route::get('/admin', 'HomeController@index');
  
@@ -59,4 +50,18 @@ Route::group(['middleware' => 'admin'], function(){
     Route::resource('products', 'productController');
 
  
+//});
+
+
+
 });
+
+ Auth::routes();
+ 
+Route::get('/create-user', 'userController@showSignup');
+Route::post('/create-user', 'userController@signup')->name('create-user');
+Route::get('/logging-user', 'userController@showSignin');
+Route::post('/logging-user', 'userController@signin')->name('logging-user');
+
+
+ 

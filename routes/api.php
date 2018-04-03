@@ -37,7 +37,8 @@ Route::post('/create-user', 'apiSigninController@apiSignup');
 Route::post('/active_my_account', 'apiSigninController@active_my_account');
 Route::post('/resending_email', 'apiSigninController@resending_email');
 Route::post('social_login', 'apiSigninController@social_login');
-Route::post('forget_password', 'apiSigninController@forget_password');
+Route::post('forget_password_step1', 'apiSigninController@forget_password_step1');
+Route::post('forget_password_step2', 'apiSigninController@forget_password_step2');
 
 
 // profile routes

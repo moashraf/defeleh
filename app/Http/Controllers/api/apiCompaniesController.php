@@ -85,12 +85,19 @@ $validator = Validator::make($request->all(), [
 
     public function store(Request $request)
     {
-        $rules = ['name' => 'required', 'categoryid' => 'required', 'ownerid' => 'required', 'image' => 'required', // max 10000kb
-        'address' => 'required', 'phones' => 'required', 'description' => 'required',
-        //'website_company' => 'required|url', 
-        
-       // 'facebook_page' => 'url'
-        
+        $rules = [
+            'name' => 'required', 
+            'categoryid' => 'required', 
+            'ownerid' => 'required', 
+            'image' => 'required',
+            'address' => 'required', 
+             'phones' => 'required', 
+             'description' => 'required',
+             'area' => 'required',
+             'city' => 'required',
+             'website_company' => 'required|url', 
+            'facebook_page' => 'url'
+
         ];
 
         $validation = Helpers::validate($request->all() , $rules);

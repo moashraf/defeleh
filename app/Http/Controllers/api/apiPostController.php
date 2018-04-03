@@ -37,6 +37,9 @@ class apiPostController extends Controller
         $rules = [
             'title' => 'required|min:3',
             'content' => 'required|min:3',
+          'ownerid' => 'required',
+
+            
            // 'image' => 'required'
         ];
 

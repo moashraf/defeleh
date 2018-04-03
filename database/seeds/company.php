@@ -13,22 +13,30 @@ class company extends Seeder
     {
 
 
-  $factory->define(App\Models\company::class, function (Faker\Generator $faker) {
-    return [
-        'name' => $faker->name,
+
+$faker = Faker\Factory::create();
+
+    for($i = 0; $i < 5; $i++) {
+        App\Models\company::create([
+             'name' => $faker->company  ,
         'address' => $faker->address,
         'image' => $faker->image,
-        'phones' => $faker->phones,
-        'description' => $faker->description,
-        'popular' => 0,
-        'website_company' => $faker->website_company,
-        'facebook_page' => $faker->facebook_page,
-        'city' => $faker->city,
-        'area' => $faker->area,
+        'phones' => $faker->e164PhoneNumber     ,
+        'description' => $faker->text(100)  ,
+         'popular' => 0,
+         'website_company' => $faker->url ,
+         'facebook_page' => $faker->url,
+       'city' => $faker->city,
+        'area' => $faker->streetName,
         'ownerid' => rand(10,30),
-        'company_code' => rand(10,30),
-        'categoryid' => rand(10,30),
-    ]; });
+        'company_code' => rand(1000,3000),
+        'categoryid' => rand(10,30)
+        ]);
+    }
+
+
+
+  
 
 
 

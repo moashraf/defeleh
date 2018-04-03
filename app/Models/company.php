@@ -42,7 +42,9 @@ class company extends Model
         'company_code',
         'website_company',
         'facebook_page',
-                'description'
+        'area',
+        'city',
+         'description'
         
     ];
 

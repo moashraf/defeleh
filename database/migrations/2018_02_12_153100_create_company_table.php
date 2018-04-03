@@ -16,11 +16,11 @@ class CreateCompanyTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('ownerid');
-			$table->integer('popular');
+			$table->integer('popular')->default(0);
 			$table->integer('company_code');
 			$table->integer('categoryid');	
 			$table->string('name', 400);
-			$table->text('image', 65535);
+			$table->string('image', 400);
 			$table->text('address', 65535);
 			$table->text('phones', 65535);
 			$table->text('description', 65535);
